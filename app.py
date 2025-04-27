@@ -8,7 +8,7 @@ import random
 app = Flask(__name__, template_folder=r'E:\frontend\templets')
 app.secret_key = 'your_secret_key'
 
-DB_NAME = HCFR
+DB_NAME = face_recognition_db_eqve
 DB_USER = postgres_27
 DB_PASSWORD = dsIk0RpN75XOSUpkV5artsMZXdslfhw1
 DB_HOST = dpg-d0745qili9vc73euc44g-a
