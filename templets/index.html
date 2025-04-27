@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Admin Dashboard</h2>
+            <ul>
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/add_person">Add New Person</a></li>
+                <li><a href="/authorized_persons">Authorized Users</a></li>
+                
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <h2>Dashboard</h2>
+                <div class="top-bar-right">
+                    <span id="time">Time: <!-- Current Time --> </span>
+                    <button id="logout-btn">Logout</button>
+
+                </div>
+                <script>
+                    document.getElementById('logout-btn').addEventListener('click', function() {
+                        window.location.href = '/logout'; // assuming your backend has a /logout route
+                    });
+                </script>
+            </div>
+
+            <!-- Main Dashboard Content -->
+            
+                    <!-- Live Person Count -->
+                    <div class="content-section">
+        
+                            <h2>Live Person Count</h2>
+                            <div style="font-size: 48px; margin: 10px 0; color: crimson; text-align: center;">{{ live_count }}</div>
+                            <div style="display: flex; justify-content: space-between; font-size: 18px; margin-top: 20px;">
+                                <div>Entered: {{ total_entered }}</div>
+                                <div>Exited: {{ total_exited }}</div>
+                            </div>
+                    </div>
+
+                    <!-- Live Camera Feed -->
+                    <div class="live-camera-feed">
+                        <h3>Live Camera Feed</h3>
+                        <!-- Embed or display camera feed here -->
+                        <div id="camera-feed-container">
+                            <!-- Camera feed can be placed here -->
+                            <img src="camera_feed_placeholder.jpg" alt="Camera Feed">
+                        </div>
+                    </div>
+                    <!-- Recent Logs Table -->
+                    <div class="recent-logs">
+            
+                        <h3>Recent Entry Logs</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Person ID</th>
+                                    <th>Name</th>
+                                    <th>Timestemps</th>
+                                    <th>status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in entry_logs %}
+                                <tr>
+                                    <td>{{ log.user_id }}</td>
+                                    <td>{{ log.name }}</td>
+                                    <td>{{ log.entry_time }}</td>
+                                    <td>Authorized</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                       
+                        <h2>Recent Unauthorized user logs</h2>
+                            <div class="recent-logs">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for image in images_data %}
+                                        <tr>
+                                            <td>{{ image.timestamp }}</td>
+                                            <td>
+                                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#imageModal" data-bs-img="{{ url_for('static', filename='images/' + image.filename) }}" data-bs-timestamp="{{ image.timestamp }}">
+                                                    View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Modal for viewing image -->
+                            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="imageModalLabel">Unauthorized Face</h5>
+                    
+                                        </div>
+                                        <div class="modal-body">
+                                            <img src="" id="modalImage" class="img-fluid" alt="Unauthorized Face">
+                                            <p id="modalTimestamp"></p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bootstrap JS for Modal -->
+                            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+                            <script>
+                                // JavaScript to update modal with selected image and timestamp
+                                var imageModal = document.getElementById('imageModal');
+                                imageModal.addEventListener('show.bs.modal', function (event) {
+                                    var button = event.relatedTarget;
+                                    var imageSrc = button.getAttribute('data-bs-img');
+                                    var timestamp = button.getAttribute('data-bs-timestamp');
+                                    
+                                    var modalImage = imageModal.querySelector('#modalImage');
+                                    var modalTimestamp = imageModal.querySelector('#modalTimestamp');
+                                    
+                                    modalImage.src = imageSrc;
+                                    modalTimestamp.textContent = 'Timestamp: ' + timestamp;
+                                });
+                            </script>
+                    </div>
+        </div>
+</body>
+</html>

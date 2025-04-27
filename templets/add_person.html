@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Authorized Person</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Admin Dashboard</h2>
+            <ul>
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/add_person">Add New Person</a></li>
+                <li><a href="/authorized_persons">Authorized person list </a></li>
+            </ul>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <h2>Add New Authorized Person</h2>
+                <button id="logout-btn">Logout</button>
+            </div>
+            <script>
+                document.getElementById('logout-btn').addEventListener('click', function() {
+                    window.location.href = '/logout'; // assuming your backend has a /logout route
+                });
+            </script>
+
+            <div class="form-container">
+                <h2>Register New Authorized Person</h2>
+
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="file" name="image" required placeholder="Upload Face Image"><br>   
+                    <input type="text" name="name" required placeholder="Full Name"><br>
+                    <input type="text" name="person_id" required placeholder="Person ID"><br>
+                    <button type="submit">Upload & Encode Face</button>
+                </form>
+
+                {% if success %}
+                <div id="success-message" style="color: green; margin-top: 20px;">
+                    ✅ Encoding successful! Face saved with ID 2.
+                  </div>
+                {% elif error %}
+                <div id="success-message" style="color: rgb(255, 0, 0); margin-top: 20px;">
+                    Error!
+                  </div>
+                {% endif %}
+            </div>
+            <script>
+                // Wait for the page to fully load
+                window.onload = function() {
+                  // Set a timeout to hide the success message after 3 seconds (3000 milliseconds)
+                  setTimeout(function() {
+                    var message = document.getElementById('success-message');
+                    if (message) {
+                      message.style.display = 'none';
+                    }
+                  }, 3000); // 3 seconds
+                }
+              </script>
+              
+        </div>
+    </div>
+</body>
+</html>

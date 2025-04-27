@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Authorized Person</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Admin Dashboard</h2>
+            <ul>
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/add_person">Add New Person</a></li>
+                <li><a href="/authorized_persons">Authorized person list </a></li>
+            </ul>
+        </div>
+        <!-- Main content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <h2> Authorized Person List</h2>
+                <button id="logout-btn">Logout</button>
+            </div>
+            <script>
+                document.getElementById('logout-btn').addEventListener('click', function() {
+                    window.location.href = '/logout'; 
+                });
+            </script>
+            <div class="recent-logs">
+                
+                    <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Image</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        {% for person in authorized_persons %}
+                            <li>
+                                <td><p>Person ID: {{ person.id }}</p></td>
+                                <td><p>Name: {{ person.name }}</p></td>
+                                
+                                {% if person.id != 'unknown' and person.id is not none %}
+                                    <td><form action="{{ url_for('remove_person', person_id=person.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-danger">Remove</button>
+                                    </form></td>
+
+                                {% else %}
+                                    <p>Invalid ID, cannot remove person.</p>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+              
+        </div>
+    </div>
+</body>
+</html>
