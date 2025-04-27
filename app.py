@@ -5,7 +5,7 @@ from psycopg2.extras import RealDictCursor
 import re
 import random
 
-app = Flask(__name__, template_folder=r'E:\frontend\templets')
+app = Flask(__name__, template_folder=r'templets')
 app.secret_key = 'your_secret_key'
 
 DB_HOST = os.getenv("DB_HOST")
