@@ -167,14 +167,6 @@ def add_person():
             image_path = os.path.join('static', 'images', filename)
             image.save(image_path)
         
-        # Simulate adding person data (store in a file/database in a real project)
-        cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO entry_logs_v2 (user_id, name, image_capture)
-            VALUES (%s, %s, %s)
-        """, (person_id, name, image_path))
-        conn.commit()
-        
         return render_template('add_person.html', success=True, name=name, person_id=person_id)
     
     return render_template('add_person.html')
