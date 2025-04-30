@@ -4,6 +4,9 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import re
 import random
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 
 app = Flask(__name__, template_folder=r'templets')
 app.secret_key = 'your_secret_key'
@@ -25,6 +28,13 @@ conn = psycopg2.connect(
     port=os.environ.get('DB_PORT')
 )
 
+# Get the service account credentials from the environment variable
+google_credentials_json = os.environ.get('GOOGLE_CREDENTIALS_JSON')
+
+# Ensure the credentials are available
+if google_credentials_json is None:
+    raise ValueError("Google credentials are not set in the environment variables.")
+
 # Dummy admin credentials
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'admin123'
@@ -36,6 +46,34 @@ total_exited = 15
 
 # Folder where images are stored
 IMAGE_FOLDER = os.path.join('static', 'images')
+
+def upload_to_drive(local_path, filename, folder_id):
+    # Load credentials
+    credentials = service_account.Credentials.from_service_account_info(
+        json.loads(google_credentials_json),
+        scopes=['https://www.googleapis.com/auth/drive']
+    )
+
+    # Build the Drive API client
+    drive_service = build('drive', 'v3', credentials=credentials)
+
+    # Create file metadata including folder location
+    file_metadata = {
+        'name': filename,
+        'parents': [folder_id]
+    }
+
+    media = MediaFileUpload(local_path, resumable=True)
+    
+    # Upload the file
+    file = drive_service.files().create(
+        body=file_metadata,
+        media_body=media,
+        fields='id'
+    ).execute()
+    
+    print(f"Uploaded File ID: {file.get('id')}")
+    return file.get('id')
 
 # Function to extract timestamp from image filename
 def extract_timestamp(filename):
@@ -166,6 +204,7 @@ def add_person():
             # Secure the filename and save the image to the static/images folder
             image_path = os.path.join('static', 'images', filename)
             image.save(image_path)
+            upload_to_drive(image_path, filename, '1HDnzyC7squbq6aheymQF0xAprCR8H0Nz')
         
         return render_template('add_person.html', success=True, name=name, person_id=person_id)
     
