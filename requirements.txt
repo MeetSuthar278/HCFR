@@ -1,6 +1,6 @@
-Flask
-psycopg2-binary
-gunicorn
+Flask==2.3.3
+gunicorn==21.2.0
+psycopg2-binary==2.9.9
 google-api-python-client==2.70.0
 google-auth==2.14.0
 google-auth-oauthlib==0.7.1
