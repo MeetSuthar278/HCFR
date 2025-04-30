@@ -76,6 +76,36 @@ def upload_to_drive(local_path, filename, folder_id):
     print(f"Uploaded File ID: {file.get('id')}")
     return file.get('id')
 
+def get_drive_service():
+    credentials = service_account.Credentials.from_service_account_file(
+        'stable-smithy-458407-p9-1936e4ae66bc.json',
+        scopes=['https://www.googleapis.com/auth/drive']
+    )
+    return build('drive', 'v3', credentials=credentials)
+
+def list_all_images_in_drive(folder_id):
+    service = get_drive_service()
+    query = f"'{folder_id}' in parents and mimeType='image/jpeg' and trashed = false"
+    
+    results = service.files().list(
+        q=query,
+        spaces='drive',
+        fields="files(id, name)",
+        pageSize=1000
+    ).execute()
+
+    return results.get('files', [])
+
+def delete_drive_file(file_id):
+    service = get_drive_service()
+    try:
+        service.files().delete(fileId=file_id).execute()
+        return True
+    except Exception as e:
+        print(f"Error deleting file: {e}")
+        return False
+
+
 # Function to extract timestamp from image filename
 def extract_timestamp(filename):
 
@@ -91,30 +121,31 @@ def extract_timestamp(filename):
     return None
 
 def get_authorized_persons():
-    # Directory where authorized images are stored
-    images_folder = os.path.join('static', 'images')
+    folder_id = '1HDnzyC7squbq6aheymQF0xAprCR8H0Nz'     
+    image_files = list_all_images_in_drive(folder_id)
     
-    # Get all image files in the 'images' folder
-    image_files = [f for f in os.listdir(images_folder) if f.endswith('.jpg')]
-    
-    # Extract person_id and name from the image filenames and prepare the list
     authorized_persons = []
-    for image_file in image_files:
+    
+    for file in image_files:
+        filename = file['name']
+        file_id = file['id']
+        
         try:
             # Assuming filename format: id_name.jpg
-            person_id, name_with_extension = image_file.split('_', 1)
-            name = name_with_extension.split('.')[0]  # Remove file extension
-            
-            # Convert person_id to an integer if it's a valid number
-            person_id = int(person_id)  # This will raise an error if it's not a valid integer
-            
+            person_id, name_with_extension = filename.split('_', 1)
+            name = name_with_extension.rsplit('.', 1)[0]
+            person_id = int(person_id)
+
+            # Google Drive image link
+            image_url = f"https://drive.google.com/uc?id={file_id}"
+
             authorized_persons.append({
                 'id': person_id,
                 'name': name,
-                'image_filename': image_file
+                'image_url': image_url
             })
+
         except ValueError:
-            # Handle the case where the filename format is incorrect or ID can't be converted to an integer
             continue
 
     return authorized_persons
@@ -215,52 +246,30 @@ def add_person():
 def authorized_persons():
     authorized_persons = get_authorized_persons()
     
-    # Debugging: Ensure the IDs are integers
-    # Debugging: Ensure the IDs are integers
+    # Ensure IDs are integers
     for person in authorized_persons:
-        if not isinstance(person['id'], int):  # Accessing 'id' as a dictionary key
-            print(f"Invalid ID found: {person['id']}")  # Debugging
-            # Optionally replace invalid ID with a valid value or skip this person
-            person['id'] = -1  # Example: Replace with a default ID (if appropriate)
-
+        if not isinstance(person['id'], int):
+            person['id'] = -1  # optional fallback
     
     return render_template('authorized_persons.html', authorized_persons=authorized_persons)
 
 
-
 @app.route('/remove_person/<int:person_id>', methods=['POST'])
 def remove_person(person_id):
-    # Directory where authorized images are stored
-    images_folder = os.path.join('static', 'images')
+    folder_id = '1HDnzyC7squbq6aheymQF0xAprCR8H0Nz'     
+    files = list_all_images_in_drive(folder_id)
     
-    # Get the authorized person data
-    authorized_persons_list = get_authorized_persons()
-    
-    # Find the person with the specified ID
-    person_to_remove = next((person for person in authorized_persons_list if person['id'] == person_id), None)
-    
-    if person_to_remove:
-        # Get the image filename from the person's data
-        person_image = person_to_remove['image_filename']
-        
-        # Construct the full path to the image file
-        image_path = os.path.join(images_folder, person_image)
-        
+    for file in files:
         try:
-            # Ensure the file exists before attempting to remove it
-            if os.path.exists(image_path):
-                os.remove(image_path)  # Remove the image
-            else:
-                print(f"File not found: {image_path}")
-        except Exception as e:
-            print(f"Error removing file: {e}")
-        
-        # After removal, redirect or render a page to update the list
-        return redirect(url_for('authorized_persons'))
+            pid, _ = file['name'].split('_', 1)
+            if int(pid) == person_id:
+                file_id = file['id']
+                delete_drive_file(file_id)
+                break
+        except:
+            continue
+
+    return redirect(url_for('authorized_persons'))
     
-    return "Person not found", 404
-
-
-
 if __name__ == "__main__":
     app.run(debug=True)
