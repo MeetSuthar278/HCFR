@@ -77,8 +77,8 @@ def upload_to_drive(local_path, filename, folder_id):
     return file.get('id')
 
 def get_drive_service():
-    credentials = service_account.Credentials.from_service_account_file(
-        'stable-smithy-458407-p9-1936e4ae66bc.json',
+    credentials = service_account.Credentials.from_service_account_info(
+        json.loads(google_credentials_json),
         scopes=['https://www.googleapis.com/auth/drive']
     )
     return build('drive', 'v3', credentials=credentials)
