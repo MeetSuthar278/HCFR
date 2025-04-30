@@ -40,23 +40,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                    <tr>
                         {% for person in authorized_persons %}
-                            <li>
-                                <td><p>Person ID: {{ person.id }}</p></td>
-                                <td><p>Name: {{ person.name }}</p></td>
-                                
-                                {% if person.id != 'unknown' and person.id is not none %}
-                                    <td><form action="{{ url_for('remove_person', person_id=person.id) }}" method="POST">
-                                        <button type="submit" class="btn btn-danger">Remove</button>
-                                    </form></td>
-
+                        <tr>
+                            <td><p>Person ID: {{ person.id }}</p><p>Name: {{ person.name }}</p></td>
+                            <td>
+                                {% if person.image %}
+                                    <img src="{{ url_for('static', filename='images/' + person.image) }}" alt="Image" width="100">
                                 {% else %}
-                                    <p>Invalid ID, cannot remove person.</p>
+                                    No image
                                 {% endif %}
-                            </li>
+                            </td>
+                            <td>
+                                {% if person.id != 'unknown' and person.id is not none %}
+                                    <form action="{{ url_for('remove_person', person_id=person.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-danger">Remove</button>
+                                    </form>
+                                {% else %}
+                                    Invalid ID, cannot remove person.
+                                {% endif %}
+                            </td>
+                        </tr>
                         {% endfor %}
-                    </tr>
                     </tbody>
                 </table>
             </div>
