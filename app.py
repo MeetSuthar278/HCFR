@@ -12,22 +12,9 @@ from googleapiclient.http import MediaFileUpload
 app = Flask(__name__, template_folder=r'templets')
 app.secret_key = 'your_secret_key'
 
-DB_HOST = os.getenv("DB_HOST")
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-DB_PORT = os.getenv("DB_PORT") 
-
-
 
 # PostgreSQL connection settings
-conn = psycopg2.connect(
-    dbname=os.environ.get('DB_NAME'),
-    user=os.environ.get('DB_USER'),
-    password=os.environ.get('DB_PASSWORD'),
-    host=os.environ.get('DB_HOST'),
-    port=os.environ.get('DB_PORT')
-)
+conn = psycopg2.connect(os.environ["DATABASE_URL"])
 
 # Get the service account credentials from the environment variable
 google_credentials_json = os.environ.get('GOOGLE_CREDENTIALS_JSON')
