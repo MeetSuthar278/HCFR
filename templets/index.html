@@ -143,6 +143,19 @@
                                     modalTimestamp.textContent = 'Timestamp: ' + timestamp;
                                 });
                             </script>
+                            <script>
+                                function updateTime() {
+                                    const now = new Date();
+                                    const formattedTime = now.toLocaleTimeString();
+                                    document.getElementById('time').textContent = 'Time: ' + formattedTime;
+                                }
+                            
+                                // Update time every second
+                                setInterval(updateTime, 1000);
+                            
+                                // Call it once on page load
+                                updateTime();
+                            </script>
                     </div>
         </div>
 </body>
